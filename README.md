@@ -1,26 +1,28 @@
 # rec-this
 
-Records desktop audio on Arch Linux / PipeWire to a timestamped file.
+Records desktop audio on PipeWire to a timestamped file.
 
 ```
-rec-this            # start recording; Ctrl+C stops and saves
-rec-this -t 300     # stop automatically after 5 minutes
-rec-this -f flac    # or wav
-rec-this -l         # show outputs and what is playing on them
+rec-this            # record until Ctrl+C
+rec-this -t 300     # stop after 5 minutes
+rec-this -f flac    # opus, wav or flac
+rec-this -l         # list outputs and what is playing on them
 ```
 
-Files land in `~/Recordings/rec-YYYY-MM-DD_HH-MM-SS.opus`. Every run writes a new
-file; nothing is ever overwritten.
+Recordings go to `~/Recordings/rec-YYYY-MM-DD_HH-MM-SS.opus`. Every run writes a
+new file; nothing is overwritten. Ctrl+C and SIGTERM both stop the capture and
+let ffmpeg finalise the file, so `kill` and systemd stops leave a playable
+recording too.
 
-## Build
+## Install
 
 ```
-make            # -> ./rec-this
-make install    # -> ~/.local/bin/rec-this
+make            # build ./rec-this
+make install    # install to ~/.local/bin, override with PREFIX=
 ```
 
-No dependencies beyond the Go standard library. Needs `ffmpeg` and `pactl` at
-runtime: `pacman -S ffmpeg libpulse`.
+Go standard library only. Needs `ffmpeg` and `pactl` at runtime:
+`pacman -S ffmpeg libpulse`.
 
 ## Options
 
@@ -28,30 +30,25 @@ runtime: `pacman -S ffmpeg libpulse`.
 | --- | --- | --- |
 | `-o DIR` | output directory | `~/Recordings` |
 | `-f FORMAT` | `opus`, `wav` or `flac` | `opus` |
-| `-s SOURCE` | override the auto-detected monitor | default sink's monitor |
-| `-t SECONDS` | stop automatically after a duration | runs until Ctrl+C |
+| `-s SOURCE` | monitor source to capture | default sink's monitor |
+| `-t SECONDS` | stop after a duration | runs until Ctrl+C |
 | `-l` | list outputs and exit | |
 | `-h` | usage | |
 
-## Two things that are deliberate
+Audio is captured at 48 kHz stereo. `opus` encodes at 128 kbit/s, `wav` is
+16-bit PCM, `flac` is lossless.
 
-**Monitor sources only. It never opens a microphone.** A `.monitor` source is a
-tap on an *output* sink. Opening a real capture device makes BlueZ renegotiate
-the headset profile from A2DP down to HSP/HFP, which collapses playback quality
-and disables ANC on Bluetooth headphones. `-s` is restricted to `.monitor` names
-for the same reason. There is exactly one capture stream and it is never an
-input. Please don't "helpfully" add a mic option.
+The source is resolved from `pactl get-default-sink` on each run, so switching
+output mid-session needs no configuration. `-s` takes another sink's monitor, as
+listed by `rec-this -l`.
 
-**ffmpeg runs in its own process group** (`SysProcAttr{Setpgid: true}`). Without
-that, the terminal delivers Ctrl+C to ffmpeg as well as to `rec-this`; ffmpeg counts
-two signals, aborts the container trailer write with `Immediate exit requested`,
-and leaves a zero-byte unplayable file. With it, the only shutdown signal ffmpeg
-ever sees is the single one `rec-this` forwards, so the recording is always
-finalized. SIGTERM is handled identically, so `kill` and systemd stops produce a
-valid file too.
+## Monitor sources only
 
-The monitor is resolved from `pactl get-default-sink` on every run, so switching
-outputs mid-session needs no configuration.
+A `.monitor` source is a tap on an output sink. `rec-this` captures one of those
+and nothing else, and `-s` rejects any name that is not a monitor. Opening a
+real capture device makes BlueZ renegotiate the headset profile from A2DP down
+to HSP/HFP, which drops playback to telephone quality and disables ANC. There is
+no microphone option.
 
 ## License
 
