@@ -52,3 +52,7 @@ valid file too.
 
 The monitor is resolved from `pactl get-default-sink` on every run, so switching
 outputs mid-session needs no configuration.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
