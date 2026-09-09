@@ -1,5 +1,5 @@
 PREFIX ?= $(HOME)/.local
-BIN    := rec
+BIN    := rec-this
 
 build:
 	go build -trimpath -ldflags '-s -w' -o $(BIN) .

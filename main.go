@@ -1,4 +1,4 @@
-// rec records desktop audio from the PipeWire monitor of the current default
+// rec-this records desktop audio from the PipeWire monitor of the current default
 // sink to a timestamped file in ~/Recordings.
 //
 // Monitor-only by design. Read the comment on resolveSource before adding any
@@ -40,7 +40,7 @@ var formats = map[string]format{
 
 func main() {
 	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "rec: %v\n", err)
+		fmt.Fprintf(os.Stderr, "rec-this: %v\n", err)
 		os.Exit(1)
 	}
 }
@@ -375,7 +375,7 @@ func listSinks() error {
 		return errors.New("no outputs found — is PipeWire running?")
 	}
 
-	fmt.Printf("outputs (* = default, the one rec records with no -s)\n\n")
+	fmt.Printf("outputs (* = default, the one rec-this records with no -s)\n\n")
 	for _, s := range sinks {
 		mark := " "
 		if s.name == def {
@@ -390,7 +390,7 @@ func listSinks() error {
 	// A sink drops to IDLE or SUSPENDED whenever its streams are merely paused,
 	// so the attached-app list is a better signal than the state column alone.
 	fmt.Printf("\nRUNNING = audio flowing now.  IDLE = open but silent.  SUSPENDED = powered down.\n")
-	fmt.Printf("To record a non-default output:  rec -s <name>.monitor\n")
+	fmt.Printf("To record a non-default output:  rec-this -s <name>.monitor\n")
 	return nil
 }
 
@@ -438,9 +438,9 @@ func uniq(in []string) []string {
 }
 
 func usage() {
-	fmt.Fprint(os.Stderr, `rec — record system audio to a timestamped file
+	fmt.Fprint(os.Stderr, `rec-this — record system audio to a timestamped file
 
-Usage: rec [-o DIR] [-f FORMAT] [-s SOURCE] [-t SECONDS] [-h]
+Usage: rec-this [-o DIR] [-f FORMAT] [-s SOURCE] [-t SECONDS] [-h]
 
   -o DIR       output directory                    (default: ~/Recordings)
   -f FORMAT    opus | wav | flac                   (default: opus)

@@ -1,12 +1,12 @@
-# rec
+# rec-this
 
 Records desktop audio on Arch Linux / PipeWire to a timestamped file.
 
 ```
-rec              # start recording; Ctrl+C stops and saves
-rec -t 300       # stop automatically after 5 minutes
-rec -f flac      # or wav
-rec -l           # show outputs and what is playing on them
+rec-this            # start recording; Ctrl+C stops and saves
+rec-this -t 300     # stop automatically after 5 minutes
+rec-this -f flac    # or wav
+rec-this -l         # show outputs and what is playing on them
 ```
 
 Files land in `~/Recordings/rec-YYYY-MM-DD_HH-MM-SS.opus`. Every run writes a new
@@ -15,8 +15,8 @@ file; nothing is ever overwritten.
 ## Build
 
 ```
-make            # -> ./rec
-make install    # -> ~/.local/bin/rec
+make            # -> ./rec-this
+make install    # -> ~/.local/bin/rec-this
 ```
 
 No dependencies beyond the Go standard library. Needs `ffmpeg` and `pactl` at
@@ -43,10 +43,10 @@ for the same reason. There is exactly one capture stream and it is never an
 input. Please don't "helpfully" add a mic option.
 
 **ffmpeg runs in its own process group** (`SysProcAttr{Setpgid: true}`). Without
-that, the terminal delivers Ctrl+C to ffmpeg as well as to `rec`; ffmpeg counts
+that, the terminal delivers Ctrl+C to ffmpeg as well as to `rec-this`; ffmpeg counts
 two signals, aborts the container trailer write with `Immediate exit requested`,
 and leaves a zero-byte unplayable file. With it, the only shutdown signal ffmpeg
-ever sees is the single one `rec` forwards, so the recording is always
+ever sees is the single one `rec-this` forwards, so the recording is always
 finalized. SIGTERM is handled identically, so `kill` and systemd stops produce a
 valid file too.
 
