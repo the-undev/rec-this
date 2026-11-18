@@ -1,7 +1,11 @@
-PREFIX ?= /usr/local
-BIN    := rec-this
+PREFIX  ?= /usr/local
+BIN     := rec-this
+SOURCES := $(wildcard *.go) go.mod
 
-build:
+# make builds as the user; sudo make install only copies the binary it built.
+build: $(BIN)
+
+$(BIN): $(SOURCES)
 	go build -trimpath -ldflags '-s -w' -o $(BIN) .
 
 test:
@@ -18,7 +22,7 @@ fmt:
 
 check: fmt lint test build
 
-install: build
+install: $(BIN)
 	install -Dm755 $(BIN) $(DESTDIR)$(PREFIX)/bin/$(BIN)
 
 uninstall:

@@ -23,7 +23,7 @@ sudo make install
 
 This puts `rec-this` in `/usr/local/bin` for every account.
 `PREFIX=~/.local make install` installs it for yourself only, without sudo.
-`sudo make uninstall` removes it.
+`sudo make uninstall` removes it; a per-user install needs the same `PREFIX`.
 
 Go standard library only. Needs `ffmpeg` and `pactl` at runtime:
 `pacman -S ffmpeg libpulse`.
